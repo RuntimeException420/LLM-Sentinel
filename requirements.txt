@@ -1,0 +1,2 @@
+anthropic=0.29.0
+Office2JSON=1.0
