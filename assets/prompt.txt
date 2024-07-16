@@ -29,7 +29,7 @@ Look for indications of potential Template Injection, specifically:
 Synthesize your findings from both the JSON content and olevba analysis. Consider the overall context and potential impact in an enterprise environment.
 
 Provide your assessment in the following format:
-1. A very brief summary of your findings (2-3 sentences maximum)
+1. A very brief summary of your findings (3-4 sentences maximum)
 2. A numerical assessment of the document's likely maliciousness, ranging from 0 (totally benign) to 10 (totally malicious), in 0.5 step increments
 
 Present your findings in the following structure:
