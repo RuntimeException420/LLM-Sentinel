@@ -6,6 +6,7 @@ import time
 import zipfile
 import shutil
 
+MAX_TOKEN_COUNT = 200000  # current max token context window size; check Anthropic docs for updates
 
 if __name__ == "__main__":
     rel_path = ".\\"
@@ -18,7 +19,6 @@ if __name__ == "__main__":
         Office2JSON.extract(args)
         extraction_time = time.time() - start_time
 
-        request_start_time = time.time()
         rel_path, file = os.path.split(args.file)
         with open(os.path.join(rel_path, "extracted_" + file + ".json")) as content:  # created by Office2JSON
             JSON_CONTENT = content.read()
@@ -29,7 +29,19 @@ if __name__ == "__main__":
         client = anthropic.Anthropic(
             api_key=os.environ.get("ANTHROPIC_API_KEY")
         )
+        token_count = client.count_tokens(JSON_CONTENT) + client.count_tokens(PROMPT)
 
+        if token_count > MAX_TOKEN_COUNT:
+            print(f"Unable to send {token_count}, exceeding the current maximum of {MAX_TOKEN_COUNT} "
+                  f"tokens in a request.\n"
+                  f"Check the Anthropic documentation for updates.")
+        proceed = ""
+        while not proceed == "yes" and not proceed == "no":
+            proceed = input(f"{token_count} tokens will be sent to Anthropic API. Want to continue? 'yes' | 'no' - ")
+        if proceed == "no":
+            raise InterruptedError
+
+        request_start_time = time.time()
         message = client.messages.create(
             model="claude-3-5-sonnet-20240620",
             max_tokens=1000,
@@ -53,18 +65,22 @@ if __name__ == "__main__":
         print(40 * "_")
         print(f"Extraction time: \t{round(extraction_time, 3)} seconds")
         print(f"Extraction path: \t{rel_path}")
-        print(" |" + 18 * " -")
-        print(f"Extraction time: \t{round(time.time() - request_start_time, 3)} seconds")
-        print(f"Extraction path: \t{rel_path}")
+        print("|" + 18 * " -")
+        print(f"Response time: \t\t{round(time.time() - request_start_time, 3)} seconds")
+        print(f"Response path: \t\t{rel_path}")
         print(40 * "_")
 
+    except InterruptedError:
+        print("Process interrupted by user, exiting...")
     # Errors from Office2JSON
     except FileNotFoundError as e:
-        print("File was not found.\n" + e)
+        print("File was not found.\n")
+        print(e)
     except shutil.SameFileError as e:
-        print("Error occurred.\n" + e)
+        print("Error occurred.\n")
+        print(e)
     except zipfile.BadZipfile as e:
-        print("Can't open file as archive.\n")
+        print("Can't open file as archive. File may be of an OLE format, rather than OOXML format.\n")
 
     # Error handling inspired by https://github.com/anthropics/anthropic-sdk-python README.md
     except anthropic.APIConnectionError as e:
