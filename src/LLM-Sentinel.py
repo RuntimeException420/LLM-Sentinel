@@ -1,3 +1,5 @@
+import json
+
 import anthropic
 import os
 import Office2JSON
@@ -12,7 +14,12 @@ if __name__ == "__main__":
     rel_path = ".\\"
     try:
         args_parser = argparse.ArgumentParser("LLM-Sentinel.py")
-        args_parser.add_argument("file", help="Provide the file path to a Microsoft Office document to be analysed.")
+        args_parser.add_argument("file",
+                                 help="Provide the file path to a Microsoft Office document to be analysed")
+        args_parser.add_argument('-v', '--verbose',
+                                 action='store_true',
+                                 help="Detailed static analysis, with an increased amount of output tokens. Creates an "
+                                      ".xml file")
         args = args_parser.parse_args()
 
         start_time = time.time()
@@ -23,7 +30,8 @@ if __name__ == "__main__":
         with open(os.path.join(rel_path, "extracted_" + file + ".json")) as content:  # created by Office2JSON
             JSON_CONTENT = content.read()
 
-        with open("../assets/prompt.txt") as prompt:
+        prompt_ver = "../assets/prompt_verbose.txt" if args.verbose else "../assets/prompt.txt"
+        with open(prompt_ver) as prompt:
             PROMPT = prompt.read()
 
         client = anthropic.Anthropic(
@@ -35,6 +43,7 @@ if __name__ == "__main__":
             print(f"Unable to send {token_count}, exceeding the current maximum of {MAX_TOKEN_COUNT} "
                   f"tokens in a request.\n"
                   f"Check the Anthropic documentation for updates.")
+            raise InterruptedError
         proceed = ""
         while not proceed == "yes" and not proceed == "no":
             proceed = input(f"{token_count} tokens will be sent to Anthropic API. Want to continue? 'yes' | 'no' - ")
@@ -44,7 +53,7 @@ if __name__ == "__main__":
         request_start_time = time.time()
         message = client.messages.create(
             model="claude-3-5-sonnet-20240620",
-            max_tokens=1000,
+            max_tokens=4000 if args.verbose else 200,
             temperature=0,
             messages=[
                 {
@@ -59,8 +68,15 @@ if __name__ == "__main__":
             ]
         )
 
-        with open(os.path.join(rel_path, "response_" + file + ".json"), "w", encoding="utf-8") as res:
-            res.write(message.to_json(indent=4))
+        if args.verbose:
+            data = message.to_json()
+            data = json.loads(data)
+            xml_content = data['content'][0]['text']
+            with open(os.path.join(rel_path, "response-verbose_" + file + ".xml"), 'w', encoding='utf-8') as f:
+                f.write(xml_content)
+        else:
+            with open(os.path.join(rel_path, "response_" + file + ".json"), "w", encoding="utf-8") as res:
+                res.write(message.to_json(indent=4))
 
         print(40 * "_")
         print(f"Extraction time: \t{round(extraction_time, 3)} seconds")
@@ -97,8 +113,3 @@ if __name__ == "__main__":
         file = os.path.join(rel_path, "temp_extraction")
         if os.path.exists(file):
             shutil.rmtree(file)
-
-# #
-# TODO: --verbose mode with different prompt and more output for static analysis
-# #
-

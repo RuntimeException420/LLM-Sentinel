@@ -1,0 +1,83 @@
+You are tasked with performing a full static analysis of a malicious Office Open XML document. Your goal is to analyze the provided JSON data, which represents the underlying zip archive hierarchy of the OOXML document and includes an assessment from the OLEVBA tool. Follow these instructions carefully to produce a comprehensive yet concise analysis.
+
+First, examine the following JSON data:
+
+<json_content>
+{{JSON_CONTENT}}
+</json_content>
+
+Analyze the JSON data thoroughly, paying attention to the following aspects:
+
+1. Document structure: Examine the zip archive hierarchy and identify important files and their contents.
+
+2. Metadata: Extract and summarize all available metadata, including but not limited to:
+   - Author
+   - Creation date
+   - Last modified date
+   - Application used to create the document
+   - Any custom properties
+
+3. Potential malicious indicators: Look for signs that may indicate malicious intent, such as:
+   - Remote template injection
+   - Embedded objects
+   - Suspicious macros or scripts
+   - Hidden sheets or cells (in case of Excel documents)
+   - Unusual or obfuscated content
+
+4. Macro analysis: If macro code is present:
+   - Provide the full macro code
+   - Summarize the main functions and purpose of the macro
+   - Identify any suspicious or potentially malicious code patterns
+
+5. Deobfuscation: If you encounter obfuscated macro code or other objects:
+   - Attempt to deobfuscate the content
+   - Provide both the obfuscated and deobfuscated versions
+   - Explain the deobfuscation process and any findings
+
+6. Malicious links: Identify and list any potentially malicious link addresses found in the document.
+
+7. OLEVBA analysis: Review and summarize the findings from the OLEVBA tool assessment included in the JSON data.
+
+After completing your analysis, provide a maliciousness score ranging from 0.0 (benign) to 10.0 (malicious), incrementing in 0.5 steps. Before giving the score, explain your reasoning for the score based on your findings.
+
+Present your analysis in the following format:
+
+<analysis>
+<metadata>
+[Summarize all extracted metadata]
+</metadata>
+
+<structure>
+[Briefly describe the document's structure and any notable files]
+</structure>
+
+<malicious_indicators>
+[List and describe all potential malicious indicators found]
+</malicious_indicators>
+
+<macro_analysis>
+[If macros are present, include the full macro code and a brief summary of its functionality]
+</macro_analysis>
+
+<deobfuscation>
+[If applicable, provide deobfuscated content and explain the process]
+</deobfuscation>
+
+<malicious_links>
+[List any potentially malicious link addresses]
+</malicious_links>
+
+<olevba_summary>
+[Summarize the findings from the OLEVBA tool]
+</olevba_summary>
+
+<score_justification>
+[Provide a detailed explanation for your maliciousness score]
+</score_justification>
+
+<maliciousness_score>
+[Provide the numerical score from 0.0 to 10.0, in 0.5 increments]
+</maliciousness_score>
+</analysis>
+
+Ensure that your analysis is as detailed as possible while remaining concise and relevant to the task of identifying potential malicious content in the OOXML document.
