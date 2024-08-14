@@ -1,5 +1,4 @@
 import json
-
 import anthropic
 import os
 import Office2JSON
@@ -16,19 +15,34 @@ if __name__ == "__main__":
         args_parser = argparse.ArgumentParser("LLM-Sentinel.py")
         args_parser.add_argument("file",
                                  help="Provide the file path to a Microsoft Office document to be analysed")
+        args_parser.add_argument('-j', '--json',
+                                 action='store_true',
+                                 help="Provide a previously extracted JSON file, instead of an OOXML document. "
+                                      "Helpful for testing different file adjustments.")
         args_parser.add_argument('-v', '--verbose',
                                  action='store_true',
                                  help="Detailed static analysis, with an increased amount of output tokens. Creates an "
                                       ".xml file")
         args = args_parser.parse_args()
 
-        start_time = time.time()
-        Office2JSON.extract(args)
-        extraction_time = time.time() - start_time
-
         rel_path, file = os.path.split(args.file)
-        with open(os.path.join(rel_path, "extracted_" + file + ".json")) as content:  # created by Office2JSON
-            JSON_CONTENT = content.read()
+        if args.json:
+            if not args.file.endswith(".json"):
+                raise FileNotFoundError("Make sure to provide the extraction in a JSON formatted file. See "
+                                        "'LLM-Sentinel.py -h' for help.")
+            extraction_time = 0
+            with open(args.file) as content:
+                JSON_CONTENT = content.read()
+        else:
+            if args.file.endswith(".json"):
+                raise FileNotFoundError("Cannot extract JSON file. To send provided extraction, use option -j "
+                                        "or --json. See 'LLM-Sentinel.py -h' for help.")
+            start_time = time.time()
+            Office2JSON.extract(args)
+            extraction_time = time.time() - start_time
+
+            with open(os.path.join(rel_path, "extracted_" + file + ".json")) as content:  # created by Office2JSON
+                JSON_CONTENT = content.read()
 
         prompt_ver = "../assets/prompt_verbose.txt" if args.verbose else "../assets/prompt.txt"
         with open(prompt_ver) as prompt:
@@ -67,7 +81,8 @@ if __name__ == "__main__":
                 }
             ]
         )
-
+        if args.json:
+            file = file.replace("extracted_", "")  # to keep the original naming theme
         if args.verbose:
             data = message.to_json()
             data = json.loads(data)

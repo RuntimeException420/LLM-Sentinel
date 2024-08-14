@@ -1,2 +1,1 @@
-Office2JSON~=1.0
 anthropic~=0.29.0
