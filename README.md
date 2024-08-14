@@ -1,4 +1,8 @@
 # LLM-Sentinel
+Extracts textual data out of an OOXML file, like .docx, .docm or .xlsm, by utilising https://github.com/RuntimeException420/Office2JSON. <br>
+The extracted data will be send to Anthropics Claude 3.5 Sonnet to assess its potential maliciousness. Especially remote template injection, embedded objects and malicious VBA code are reliably detected. <br>
+For the assistance of static analysis. Use the option --verbose to generate a full static analysis report.
+
 1. Clone repository to your machine
 2. Install requirements `pip install -r requirements.tx`
    
@@ -16,4 +20,4 @@
 5. LLM-Sentinel can now import Office2JSON
 
 ## Usage
-`LLM-Sentinel.py [-h] [-v] file`
+`LLM-Sentinel.py [-h] [-v] [-j] file`
