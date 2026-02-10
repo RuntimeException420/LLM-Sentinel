@@ -1,4 +1,9 @@
 # LLM-Sentinel
+Research Paper: https://www.mdpi.com/2624-800X/5/2/32
+
+> We demonstrate that Claude 3.5 Sonnet by Anthropic, provided with a substantial quantity of raw data, equivalent to several hundred pages, can identify individual malicious indicators within an average of five to nine seconds and generate a comprehensive static analysis report, with an average cost of USD 0.19 per request and an F1-score of 0.929
+
+
 Extracts textual data out of an OOXML file, like .docx, .docm or .xlsm, by utilising https://github.com/RuntimeException420/Office2JSON. <br>
 The extracted data will be send to Anthropics Claude 3.5 Sonnet to assess its potential maliciousness. Especially remote template injection, embedded objects and malicious VBA code are reliably detected. <br>
 For the assistance of static analysis. Use the option --verbose to generate a full static analysis report.
